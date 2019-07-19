@@ -21,8 +21,12 @@ public class ArmControl : MonoBehaviour
 
     void Update()
     { 
-        shootAngle = new Quaternion(0,0, transform.rotation.z, transform.rotation.w);
+        MovementControl();
+        ShootingControl();
+    }
 
+    void MovementControl()
+    {
         if (Input.GetKey("d"))
         {
             transform.Rotate(new Vector3(0,0,armRotateSpeed));
@@ -31,13 +35,18 @@ public class ArmControl : MonoBehaviour
         {
             transform.Rotate(new Vector3(0,0,-armRotateSpeed));
         }
+    }
+    
+    void ShootingControl()
+    {
+        shootAngle = new Quaternion(0,0, transform.rotation.z, transform.rotation.w);
 
         if (Input.GetKey("space") && !isShootWaiting)
         {
             StartCoroutine(Shoot());
         }
     }
-    
+
     IEnumerator Shoot()
     {
         StartCoroutine(ShootWaiting());

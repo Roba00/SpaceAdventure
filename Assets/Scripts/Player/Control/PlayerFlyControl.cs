@@ -23,32 +23,13 @@ public class PlayerFlyControl : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey("down"))
-        {
-            playerRb.velocity = Vector2.zero;
-            force = 0;
-            playerRb.gravityScale = 0;
-            isBraking = true;
-        }
-        if (Input.GetKeyUp("down"))
-        {
-            playerRb.gravityScale = 1;
-            isBraking = false;
-        }
+        BrakeControl();
+        FlyControl();
+        HorizantalMovementControl();
+    }
 
-        if (Input.GetKey("up") && !isBraking)
-        {
-            force += incrementalForce;
-        }
-        else if (Input.GetKeyUp("up") && !isBraking)
-        {
-            force = 0;
-        }
-        if (force > maxForce)
-        {
-            force = maxForce;
-        }
-
+    void HorizantalMovementControl()
+    {
         if (Input.GetKey("left") && !isBraking)
         {
             //transform.Rotate(0,0,0.5f);
@@ -67,6 +48,38 @@ public class PlayerFlyControl : MonoBehaviour
         else if (Input.GetKey("right") && isBraking)
         {
             transform.Translate(slowSpeed, 0, 0);
+        }
+    }
+
+    void BrakeControl()
+    {
+        if (Input.GetKey("down"))
+        {
+            playerRb.velocity = Vector2.zero;
+            force = 0;
+            playerRb.gravityScale = 0;
+            isBraking = true;
+        }
+        if (Input.GetKeyUp("down"))
+        {
+            playerRb.gravityScale = 1;
+            isBraking = false;
+        }
+    }
+
+    void FlyControl()
+    {
+        if (Input.GetKey("up") && !isBraking)
+        {
+            force += incrementalForce;
+        }
+        else if (Input.GetKeyUp("up") && !isBraking)
+        {
+            force = 0;
+        }
+        if (force > maxForce)
+        {
+            force = maxForce;
         }
 
         playerRb.AddForce(Vector2.up * force);
