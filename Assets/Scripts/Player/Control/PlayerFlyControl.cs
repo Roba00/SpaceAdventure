@@ -16,10 +16,10 @@ public class PlayerFlyControl : MonoBehaviour
     void Start()
     {
         force = 0;
-        incrementalForce = 2f;
-        maxForce = 18f;
-        normalSpeed = 0.1f;
-        slowSpeed = 0.04f;
+        incrementalForce = 200f;
+        maxForce = 800f;
+        normalSpeed = 3f;
+        slowSpeed = 0.5f;
         isBraking = false;
         faceRight = true;
     }
@@ -37,21 +37,21 @@ public class PlayerFlyControl : MonoBehaviour
         if (Input.GetKey("left") && !isBraking)
         {
             //transform.Rotate(0,0,0.5f);
-            transform.Translate(-normalSpeed, 0, 0);
+            transform.Translate(-normalSpeed * Time.deltaTime, 0, 0);
         }
         else if (Input.GetKey("left") && isBraking)
         {
-            transform.Translate(-slowSpeed, 0, 0);
+            transform.Translate(-slowSpeed * Time.deltaTime, 0, 0);
         }
 
         if (Input.GetKey("right") && !isBraking)
         {
             //transform.Rotate(0,0,-0.5f);
-            transform.Translate(normalSpeed, 0, 0);
+            transform.Translate(normalSpeed * Time.deltaTime, 0, 0);
         }
         else if (Input.GetKey("right") && isBraking)
         {
-            transform.Translate(slowSpeed, 0, 0);
+            transform.Translate(slowSpeed * Time.deltaTime, 0, 0);
         }
     }
 
@@ -86,7 +86,7 @@ public class PlayerFlyControl : MonoBehaviour
             force = maxForce;
         }
 
-        playerRb.AddForce(Vector2.up * force);
+        playerRb.AddForce(Vector2.up * force * Time.deltaTime);
     }
 
     void FacingControl()
