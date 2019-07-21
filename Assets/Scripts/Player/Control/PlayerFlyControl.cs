@@ -13,6 +13,7 @@ public class PlayerFlyControl : MonoBehaviour
     private float slowSpeed;
     private bool isBraking;
     private bool isInvincible;
+    private bool faceRight;
     private int lives;
 
     void Start()
@@ -25,6 +26,7 @@ public class PlayerFlyControl : MonoBehaviour
         slowSpeed = 0.04f;
         isBraking = false;
         isInvincible = false;
+        faceRight = true;
         lives = 3;
     }
 
@@ -33,13 +35,14 @@ public class PlayerFlyControl : MonoBehaviour
         BrakeControl();
         FlyControl();
         HorizantalMovementControl();
+        FacingControl();
     }
 
     void OnCollisionEnter2D(Collision2D col)
     {
         if (col.gameObject.tag == "Enemy" && !isInvincible)
         {
-            StartCoroutine(Invivility());
+            StartCoroutine(Invincibility());
         }
         if (col.gameObject.tag == "Energy")
         {
@@ -108,7 +111,34 @@ public class PlayerFlyControl : MonoBehaviour
         playerRb.AddForce(Vector2.up * force);
     }
 
-    IEnumerator Invivility()
+    void FacingControl()
+    {
+        float offsetX = 1.5f;
+        if (Input.GetKeyDown("left") && faceRight)
+        {
+            Debug.Log("FaceLeft");
+            faceRight = false;
+            Vector3 scaleBackwards = new Vector3(-transform.localScale.x, 
+            transform.localScale.y, transform.localScale.z);
+            Vector3 resetPosition = new Vector3(transform.localPosition.x + offsetX, 
+            transform.localPosition.y, transform.localPosition.z);
+            transform.localScale = scaleBackwards;
+            transform.localPosition = resetPosition;
+        }
+        if (Input.GetKeyDown("right") && !faceRight)
+        {
+            Debug.Log("FaceRight");
+            faceRight = true;
+            Vector3 scaleBackwards = new Vector3(-transform.localScale.x, 
+            transform.localScale.y, transform.localScale.z);
+            Vector3 resetPosition = new Vector3(transform.localPosition.x - offsetX, 
+            transform.localPosition.y, transform.localPosition.z);
+            transform.localScale = scaleBackwards;
+            transform.localPosition = resetPosition;
+        }
+    }
+
+    IEnumerator Invincibility()
     {
         isInvincible = true;
         for (int j = 0; j < 3; j++)
