@@ -11,7 +11,6 @@ public class PlayerFlyControl : MonoBehaviour
     private float normalSpeed;
     private float slowSpeed;
     private bool isBraking;
-    private bool faceRight;
 
     void Start()
     {
@@ -21,7 +20,6 @@ public class PlayerFlyControl : MonoBehaviour
         normalSpeed = 3f;
         slowSpeed = 0.5f;
         isBraking = false;
-        faceRight = true;
     }
 
     void Update()
@@ -29,7 +27,6 @@ public class PlayerFlyControl : MonoBehaviour
         BrakeControl();
         FlyControl();
         HorizantalMovementControl();
-        FacingControl();
     }
 
     void HorizantalMovementControl()
@@ -87,30 +84,5 @@ public class PlayerFlyControl : MonoBehaviour
         }
 
         playerRb.AddForce(Vector2.up * force * Time.deltaTime);
-    }
-
-    void FacingControl()
-    {
-        float offsetX = 1.5f;
-        if (Input.GetKeyDown("left") && faceRight)
-        {
-            faceRight = false;
-            Vector3 scaleBackwards = new Vector3(-transform.localScale.x, 
-            transform.localScale.y, transform.localScale.z);
-            Vector3 resetPosition = new Vector3(transform.localPosition.x + offsetX, 
-            transform.localPosition.y, transform.localPosition.z);
-            transform.localScale = scaleBackwards;
-            transform.localPosition = resetPosition;
-        }
-        if (Input.GetKeyDown("right") && !faceRight)
-        {
-            faceRight = true;
-            Vector3 scaleBackwards = new Vector3(-transform.localScale.x, 
-            transform.localScale.y, transform.localScale.z);
-            Vector3 resetPosition = new Vector3(transform.localPosition.x - offsetX, 
-            transform.localPosition.y, transform.localPosition.z);
-            transform.localScale = scaleBackwards;
-            transform.localPosition = resetPosition;
-        }
     }
 }

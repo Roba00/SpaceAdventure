@@ -26,6 +26,8 @@ public class PlayerBase : MonoBehaviour
     private int lifeCount;
     public Sprite deathFace;
 
+    private bool faceRight;
+
     void Start()
     {
         PlayerFlyControl = gameObject.GetComponent<PlayerFlyControl>();
@@ -38,10 +40,13 @@ public class PlayerBase : MonoBehaviour
         playerFlyOption = true;
         isInvincible = false;
         lifeCount = 3;
+        faceRight = true;
     }
 
     void Update()
     {
+        FacingControl();
+
         if (!playerWalkOption && playerFlyOption)
         {
             PlayerFlyControl.enabled = true;
@@ -86,7 +91,6 @@ public class PlayerBase : MonoBehaviour
         playerWalkOption  = false;
     }
 
-    
     void OnCollisionEnter2D(Collision2D col)
     {
         if (col.gameObject.tag == "NormalEnemy" && !isInvincible)
@@ -159,5 +163,39 @@ public class PlayerBase : MonoBehaviour
         transform.Rotate(deathRotation);
         yield return new WaitForSeconds(3f);
         SceneManager.LoadScene(1);
+    }
+
+    void FacingControl()
+    {
+        float offsetX = 1.5f;
+        if (Input.GetKeyDown("left") && faceRight)
+        {
+            faceRight = false;
+            Vector3 scaleBackwards = new Vector3(-transform.localScale.x, 
+            transform.localScale.y, transform.localScale.z);
+            Vector3 resetPosition = new Vector3(transform.localPosition.x + offsetX, 
+            transform.localPosition.y, transform.localPosition.z);
+            transform.localScale = scaleBackwards;
+            transform.localPosition = resetPosition;
+            //Vector3 newArmRotation = new Vector3(0,0,10/*transform.Find("Arm").transform.rotation.z*/);
+            //transform.Find("Arm").transform.localEulerAngles = newArmRotation;
+        }
+        if (Input.GetKeyDown("right") && !faceRight)
+        {
+            faceRight = true;
+            Vector3 scaleBackwards = new Vector3(-transform.localScale.x, 
+            transform.localScale.y, transform.localScale.z);
+            Vector3 resetPosition = new Vector3(transform.localPosition.x - offsetX, 
+            transform.localPosition.y, transform.localPosition.z);
+            transform.localScale = scaleBackwards;
+            transform.localPosition = resetPosition;
+            //Vector3 newArmRotation = new Vector3(0,0,10/*transform.Find("Arm").transform.rotation.z*/);
+            //transform.Find("Arm").transform.localEulerAngles = newArmRotation;
+        }
+    }
+
+    public bool IsRight()
+    {
+        return faceRight;
     }
 }

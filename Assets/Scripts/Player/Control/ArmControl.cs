@@ -6,6 +6,8 @@ public class ArmControl : MonoBehaviour
 {
     public GameObject bullet;
     private Quaternion shootAngle;
+    private float angleMinConstraint;
+    private float angleMaxConstraint;
     private float armRotateSpeed;
     private float shootDistance;
     private float shootWaitTime;
@@ -21,6 +23,7 @@ public class ArmControl : MonoBehaviour
 
     void Update()
     { 
+        AngleConstraints();
         MovementControl();
         ShootingControl();
     }
@@ -44,6 +47,44 @@ public class ArmControl : MonoBehaviour
         if (Input.GetKey("space") && !isShootWaiting)
         {
             StartCoroutine(Shoot());
+        }
+    }
+
+    void AngleConstraints()
+    {
+        if (gameObject.GetComponentInParent<PlayerBase>().IsRight())
+        {
+            angleMinConstraint = 5f;
+            angleMaxConstraint = 165f;
+            if (transform.eulerAngles.z < angleMinConstraint)
+            {
+                Vector3 newAngle = new Vector3(transform.rotation.x, 
+                transform.rotation.y, angleMinConstraint);
+                transform.eulerAngles = newAngle;
+            }
+            else if (transform.eulerAngles.z > angleMaxConstraint)
+            {
+                Vector3 newAngle = new Vector3(transform.rotation.x, 
+                transform.rotation.y, angleMaxConstraint);
+                transform.eulerAngles = newAngle;
+            }
+        }
+        if (!gameObject.GetComponentInParent<PlayerBase>().IsRight())
+        {
+            angleMinConstraint = 355f;
+            angleMaxConstraint = 195f;
+            if (transform.eulerAngles.z > angleMinConstraint)
+            {
+                Vector3 newAngle = new Vector3(transform.rotation.x, 
+                transform.rotation.y, angleMinConstraint);
+                transform.eulerAngles = newAngle;
+            }
+            else if (transform.eulerAngles.z < angleMaxConstraint)
+            {
+                Vector3 newAngle = new Vector3(transform.rotation.x, 
+                transform.rotation.y, angleMaxConstraint);
+                transform.eulerAngles = newAngle;
+            }
         }
     }
 
