@@ -6,6 +6,9 @@ TagManager:
   tags:
   - NormalEnemy
   - Ground
+  - GreenPotion
+  - RedPotion
+  - BluePotion
   layers:
   - Default
   - TransparentFX

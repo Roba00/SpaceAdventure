@@ -98,14 +98,6 @@ public class PlayerBase : MonoBehaviour
             StartCoroutine(Invincibility());
             Damage(1);
         }
-        if (col.gameObject.tag == "Energy")
-        {
-            EnergyCollide(col.gameObject);
-        }
-        if (col.gameObject.tag == "Upgrade")
-        {
-            UpgradeCollide(col.gameObject);
-        }
     }
     
     IEnumerator Invincibility()
