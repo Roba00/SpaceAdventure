@@ -36,8 +36,8 @@ public class PlayerBase : MonoBehaviour
         WalkAnim = Bottom.GetComponent<WalkAnim>();
         playerSprites = gameObject.GetComponentsInChildren<SpriteRenderer>();
 
-        playerWalkOption = false;
-        playerFlyOption = true;
+        playerWalkOption = true;
+        playerFlyOption = false;
         isInvincible = false;
         lifeCount = 3;
         faceRight = true;
