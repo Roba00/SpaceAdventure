@@ -19,7 +19,7 @@ public class CameraControl : MonoBehaviour
 
     void FollowPlayer()
     {
-        Vector3 newPosition = new Vector3(player.transform.position.x, transform.position.y, transform.position.z);
+        Vector3 newPosition = new Vector3(player.transform.position.x, player.transform.position.y + 1.25f, transform.position.z);
         Vector3 smoothPositioning = Vector3.Lerp(transform.position, newPosition,followSpeed);
         transform.position = smoothPositioning;
     }

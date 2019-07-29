@@ -12,7 +12,7 @@ public class StarAnim : MonoBehaviour
     void Start()
     {
         timeStep = 0.1f;
-        scaleMultiplier = 0.1f;
+        scaleMultiplier = 2.5f;
         stepMultiplier = 10;
         StartCoroutine(Anim());
     }
