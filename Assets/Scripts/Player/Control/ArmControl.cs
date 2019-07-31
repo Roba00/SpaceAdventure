@@ -93,6 +93,7 @@ public class ArmControl : MonoBehaviour
         StartCoroutine(ShootWaiting());
         GameObject localBullet = Instantiate(bullet, transform.position, shootAngle);
         localBullet.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector3(0, -shootDistance));
+        localBullet.tag = "Bullet";
         yield return new WaitForSeconds(3f);
         Destroy(localBullet);
     }

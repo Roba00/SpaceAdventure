@@ -4,34 +4,90 @@ using UnityEngine;
 
 public class SwordBatControl : MonoBehaviour
 {
-    Rigidbody2D rb;
+    private Rigidbody2D rb;
+    private SpriteRenderer animRenderer;
+    private BoxCollider2D normalCollider;
+    private BoxCollider2D strikeCollider;
     public GameObject player;
+   
     private float width;
     private float height;
     private float angle;
     private float hypotenuse;
-    private bool isRightPos;
+    
     private bool shouldMove;
     private bool shouldJump;
     private bool shouldAttack;
-    public bool isGrounded;
+    
+    private bool isRightPos;
+    private bool isGrounded;
+    private bool isDamaging;
+
+    public Sprite BatJumpAnim;
+    public Sprite BatLeftFoot;
+    public Sprite BatRightFoot;
+    public Sprite BatStance;
+    public Sprite BatStrike;
+
+    private float health;
 
 
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody2D>();
+        animRenderer = gameObject.GetComponent<SpriteRenderer>();
+        normalCollider = gameObject.GetComponents<BoxCollider2D>()[0];
+        strikeCollider = gameObject.GetComponents<BoxCollider2D>()[1];
+        normalCollider.enabled = true;
+        strikeCollider.enabled = false;
+        animRenderer.sprite = BatStance;
+        isRightPos = false;
+        isGrounded = true;
+        shouldMove = false;
+        shouldJump = false;
+        shouldAttack = false;
+        health = 3;
     }
 
     void Update()
     {
         GetDistances();
-        StartCoroutine(Move());
-        StartCoroutine(Jump());
+
+        if (shouldMove)
+        {
+            StartCoroutine(Move());
+            StartCoroutine(WalkAnimation());
+        }
+
+        if (shouldJump && isGrounded)
+        {
+            StartCoroutine(Jump());
+        }
+
+        if (shouldAttack)
+        {
+            StartCoroutine(Attack());
+        }
+        else
+        {
+            normalCollider.enabled = true;
+            strikeCollider.enabled = false;
+        }
+
+        StartCoroutine(DeathCheck());
     }
 
     void OnCollisionEnter2D(Collision2D col)
     {
         if (col.gameObject.tag == "Ground") isGrounded = true;
+
+        //if (col.gameObject.tag == "Bullet") Damage(col.gameObject.GetComponent<BulletInfo>().damage);
+    }
+
+    void OnTriggerEnter2D (Collider2D col)
+    {
+        if (col.gameObject.tag == "Bullet" && !isDamaging) 
+            StartCoroutine(Damage(col.gameObject.GetComponent<BulletInfo>().damage));
     }
 
     void GetDistances()
@@ -51,59 +107,104 @@ public class SwordBatControl : MonoBehaviour
         if (enemyX > playerX) isRightPos = true;
         if (enemyX < playerX) isRightPos = false;
 
-        if (width > 2.5f) shouldMove = true;
+        const float moveFollowDistance = 10f;
+        const float jumpFollowDistance = 20f;
+        const float attackFollowDistance = 2.25f;
+
+        if (width <= moveFollowDistance && hypotenuse > attackFollowDistance) shouldMove = true;
         else shouldMove = false;
 
-        if (hypotenuse > 4f) shouldJump = true;
+        if (hypotenuse <= jumpFollowDistance && hypotenuse > attackFollowDistance) shouldJump = true;
         else shouldJump = false;
+
+        if (hypotenuse <= attackFollowDistance) shouldAttack = true;
+        else shouldAttack = false;
     }
 
     IEnumerator Move()
     {
-        float moveSpeed = 0.005f;
-        yield return new WaitForEndOfFrame();
-        while (shouldMove && isGrounded)
+        float moveSpeed = 0.025f;
+        if (isRightPos)
         {
-            if (isRightPos)
-            {
-                Vector3 movement = new Vector3(-moveSpeed, 0, 0);
-                transform.Translate(movement);
-                yield return new WaitForSeconds(0.5f);
-            }
-            else if (!isRightPos)
-            {
-                Vector3 movement = new Vector3(moveSpeed, 0, 0);
-                transform.Translate(movement);
-                yield return new WaitForSeconds(0.5f);
-            }
-        }    
+            transform.localScale = new Vector3(1,1,1);
+            Vector3 movement = new Vector3(-moveSpeed, 0, 0);
+            transform.Translate(movement);
+            yield return new WaitForSeconds(0.5f);
+        }
+        else if (!isRightPos)
+        {
+            transform.localScale = new Vector3(-1,1,1);
+            Vector3 movement = new Vector3(moveSpeed, 0, 0);
+            transform.Translate(movement);
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
+
+    IEnumerator WalkAnimation()
+    {
+        float waitTime = 0.15f;
+        while (true)
+        {
+            animRenderer.sprite = BatLeftFoot;
+            yield return new WaitForSeconds(waitTime);
+            animRenderer.sprite = BatRightFoot;
+            yield return new WaitForSeconds(waitTime);
+        }
     }
 
     IEnumerator Jump()
     {
         float jumpPower = 5f;
+        float waitTime = Random.Range(3f, 6f);
         Vector3 jumpForce = new Vector3(0, jumpPower);
-        yield return new WaitForEndOfFrame();
-        if (shouldJump)
+        animRenderer.sprite = BatJumpAnim;
+        if (shouldJump && isGrounded)
         {
-            if (isGrounded)
-            {
-                isGrounded = false;
-                rb.AddForce(Vector2.zero);
-                rb.AddForce(jumpForce, ForceMode2D.Impulse);
-                yield return new WaitForSeconds(10f);
-            }
-            yield return new WaitForSeconds(10f);
+            isGrounded = false;
+            rb.AddForce(Vector2.zero);
+            rb.AddForce(jumpForce, ForceMode2D.Impulse);
         }
+        yield return new WaitForSeconds(waitTime);
     }
 
     IEnumerator Attack()
     {
-        yield return new WaitForEndOfFrame();
+        normalCollider.enabled = false;
+        strikeCollider.enabled = true;
+        while (true)
+        {
+            animRenderer.sprite = BatStrike;
+            yield return new WaitForSeconds(1.5f);
+            animRenderer.sprite = BatStance;
+            yield return new WaitForSeconds(1.5f);
+        }
+
     }
 
-    IEnumerator Animation()
+    IEnumerator Damage(float amount)
     {
-        yield return new WaitForEndOfFrame();
+        isDamaging = true;
+        health -= amount;
+        Color tempDamageColor = animRenderer.color;
+            tempDamageColor.a = 0.75f;
+            tempDamageColor.b = 0f;
+            tempDamageColor.g = 0f;
+            animRenderer.color = tempDamageColor;
+        yield return new WaitForSeconds(1f);
+        Color normalColor = animRenderer.color;
+            normalColor.a = 1f;
+            normalColor.b = 255f;
+            normalColor.g = 255f;
+            animRenderer.color = normalColor;
+        isDamaging = false;
+    }
+
+    IEnumerator DeathCheck()
+    {
+        if (health <= 0)
+        {
+            yield return new WaitForSeconds(1f);
+            Destroy(gameObject);
+        }
     }
 }

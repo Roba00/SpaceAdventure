@@ -9,6 +9,7 @@ TagManager:
   - GreenPotion
   - RedPotion
   - BluePotion
+  - Bullet
   layers:
   - Default
   - TransparentFX
