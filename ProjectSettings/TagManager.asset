@@ -19,11 +19,11 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Ground
+  - Background
+  - Player
+  - Enemies
+  - Interactables
   - 
   - 
   - 
@@ -44,6 +44,24 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 3814597097
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Interactables
+    uniqueID: 3639573963
+    locked: 0
+  - name: Enemies
+    uniqueID: 3099878895
+    locked: 0
+  - name: Player
+    uniqueID: 2635208465
+    locked: 0
+  - name: Ground
+    uniqueID: 2968702967
+    locked: 0
+  - name: UI
+    uniqueID: 2870950115
     locked: 0

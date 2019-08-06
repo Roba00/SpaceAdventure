@@ -86,8 +86,11 @@ public class SwordBatControl : MonoBehaviour
 
     void OnTriggerEnter2D (Collider2D col)
     {
-        if (col.gameObject.tag == "Bullet" && !isDamaging) 
+        if (col.gameObject.tag == "Bullet" && !isDamaging)
+        { 
             StartCoroutine(Damage(col.gameObject.GetComponent<BulletInfo>().damage));
+            Destroy(col.gameObject);
+        }
     }
 
     void GetDistances()

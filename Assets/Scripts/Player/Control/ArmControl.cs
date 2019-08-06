@@ -9,14 +9,14 @@ public class ArmControl : MonoBehaviour
     private float angleMinConstraint;
     private float angleMaxConstraint;
     private float armRotateSpeed;
-    private float shootDistance;
+    private float bulletSpeed;
     private float shootWaitTime;
     private bool isShootWaiting;
     
     void Start()
     {
         armRotateSpeed = 3;
-        shootDistance = 125f;
+        bulletSpeed = 300f;
         shootWaitTime = 1f;
         isShootWaiting = false;
     }
@@ -92,7 +92,7 @@ public class ArmControl : MonoBehaviour
     {
         StartCoroutine(ShootWaiting());
         GameObject localBullet = Instantiate(bullet, transform.position, shootAngle);
-        localBullet.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector3(0, -shootDistance));
+        localBullet.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector3(0, -bulletSpeed));
         localBullet.tag = "Bullet";
         yield return new WaitForSeconds(3f);
         Destroy(localBullet);
