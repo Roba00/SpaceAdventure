@@ -17,13 +17,13 @@ public class ArmControl : MonoBehaviour
     {
         armRotateSpeed = 3;
         bulletSpeed = 300f;
-        shootWaitTime = 1f;
+        shootWaitTime = 0.6f;
         isShootWaiting = false;
     }
 
     void Update()
     { 
-        AngleConstraints();
+        //AngleConstraints();
         MovementControl();
         ShootingControl();
     }
@@ -32,19 +32,25 @@ public class ArmControl : MonoBehaviour
     {
         if (Input.GetKey("d"))
         {
-            transform.Rotate(new Vector3(0,0,armRotateSpeed));
+            //transform.Rotate(new Vector3(0,0,armRotateSpeed));
         }
         if (Input.GetKey("s"))
         {
-            transform.Rotate(new Vector3(0,0,-armRotateSpeed));
+            //transform.Rotate(new Vector3(0,0,-armRotateSpeed));
         }
+
+        //Vector3 mousePos = Input.mousePosition;
+        Vector2 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition)-transform.position;
+        float angleZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + 90;
+        Quaternion rotation = Quaternion.AngleAxis(angleZ, Vector3.forward);
+        transform.rotation = rotation;
     }
     
     void ShootingControl()
     {
         shootAngle = new Quaternion(0,0, transform.rotation.z, transform.rotation.w);
 
-        if (Input.GetKey("space") && !isShootWaiting)
+        if (Input.GetKey(KeyCode.Mouse0) && !isShootWaiting)
         {
             StartCoroutine(Shoot());
         }
@@ -94,7 +100,7 @@ public class ArmControl : MonoBehaviour
         GameObject localBullet = Instantiate(bullet, transform.position, shootAngle);
         localBullet.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector3(0, -bulletSpeed));
         localBullet.tag = "Bullet";
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(1f);
         Destroy(localBullet);
     }
 

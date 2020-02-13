@@ -5,25 +5,24 @@ using UnityEngine;
 public class PlayerWalkControl : MonoBehaviour
 {
     public Rigidbody2D playerRb;
-    private float normalSpeed;
+    private float speed;
     private float slowSpeed;
-    private float jumpPower;
+    private float jumpVelocity;
+    private float fallVelocity;
     private bool isBraking;
     private bool isGrounded;
     private bool isJumping;
-    private float jumpTime;
-    public float jumpTimeCounter;
+    private bool isNormalSpeed;
 
     void Start()
     {
-        normalSpeed = 3f;
+        speed = 3f;
         slowSpeed = 0.5f;
-        jumpPower = 5f; //350f
+        jumpVelocity = 1f; //350f
         isBraking = false;
         isGrounded = false;
         isJumping = false;
-        jumpTime = 1.5f;
-        jumpTimeCounter = jumpTime;
+        isNormalSpeed = true;
     }
 
     void Update()
@@ -41,7 +40,6 @@ public class PlayerWalkControl : MonoBehaviour
         if (col.gameObject.tag == "Ground")
         {
             isGrounded = true;
-            jumpTimeCounter = jumpTime;
         }
 
         Debug.Log(col.gameObject.name);
@@ -49,7 +47,7 @@ public class PlayerWalkControl : MonoBehaviour
 
     void JumpControl()
     {
-        if (Input.GetKeyDown("up") && isGrounded)
+        /*if (Input.GetKeyDown("w") && isGrounded)
         {
             isGrounded = false;
             isJumping = true;
@@ -57,7 +55,7 @@ public class PlayerWalkControl : MonoBehaviour
             playerRb.velocity = new Vector2 (playerRb.velocity.x, jumpPower);
         }
 
-        if (Input.GetKey("up") && isJumping)
+        if (Input.GetKey("w") && isJumping)
         {
             if (jumpTimeCounter > 0)
             {
@@ -66,31 +64,69 @@ public class PlayerWalkControl : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyUp("up"))
+        if (Input.GetKeyUp("w"))
         {
             jumpTimeCounter = 0;
             isJumping = false;
+        }*/
+
+        if (Input.GetKeyDown("w") && isGrounded)
+        {   
+            jumpVelocity = 10f;
+            isGrounded = false;
+            playerRb.velocity = new Vector2 (playerRb.velocity.x, jumpVelocity);
+        }
+
+        if (playerRb.velocity.y < 0 && !isGrounded && !Input.GetKey("w"))
+        {
+            //fallVelocity -= Physics2D.gravity.y/10000;
+            //playerRb.velocity -= Vector2.up * fallVelocity;
+        }
+
+        if (playerRb.velocity.y > 0 && !isGrounded && !Input.GetKey("w"))
+        {
+            //fallVelocity -= Physics2D.gravity.y/10000;
+            playerRb.velocity -= Vector2.up * jumpVelocity/10;
         }
     }
 
     void HorizantalMovementControl()
     {
-        if (Input.GetKey("left") && !isBraking)
+        if (Input.GetKey(KeyCode.LeftShift))
         {
-            transform.Translate(-normalSpeed * Time.deltaTime, 0, 0);
+            isNormalSpeed = !isNormalSpeed;
         }
-        else if (Input.GetKey("left") && isBraking)
+        
+        if (isNormalSpeed)
+        {
+            speed = 3f;
+        }
+        else
+        {
+            speed = 6f;
+        }
+
+        if (Input.GetKey("a") && !isBraking)
+        {
+            transform.Translate(-speed * Time.deltaTime, 0, 0);
+        }
+        else if (Input.GetKey("a") && isBraking)
         {
             transform.Translate(-slowSpeed * Time.deltaTime, 0, 0);
         }
 
-        if (Input.GetKey("right") && !isBraking)
+        if (Input.GetKey("d") && !isBraking)
         {
-            transform.Translate(normalSpeed * Time.deltaTime, 0, 0);
+            transform.Translate(speed * Time.deltaTime, 0, 0);
         }
-        else if (Input.GetKey("right") && isBraking)
+        else if (Input.GetKey("d") && isBraking)
         {
             transform.Translate(slowSpeed * Time.deltaTime, 0, 0);
         }
+    }
+
+    public bool isInAir()
+    {
+        return !isGrounded;
     }
 }

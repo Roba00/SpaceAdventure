@@ -26,7 +26,7 @@ public class PlayerBase : MonoBehaviour
     private int lifeCount;
     public Sprite deathFace;
 
-    private bool faceRight;
+    public bool faceRight;
 
     void Start()
     {
@@ -159,8 +159,8 @@ public class PlayerBase : MonoBehaviour
 
     void FacingControl()
     {
-        float offsetX = 1.5f;
-        if (Input.GetKeyDown("left") && faceRight)
+        float offsetX = 0f; //Was 1.7f
+        if (Input.GetKeyDown("a") && faceRight)
         {
             faceRight = false;
             Vector3 scaleBackwards = new Vector3(-transform.localScale.x, 
@@ -172,7 +172,7 @@ public class PlayerBase : MonoBehaviour
             //Vector3 newArmRotation = new Vector3(0,0,10/*transform.Find("Arm").transform.rotation.z*/);
             //transform.Find("Arm").transform.localEulerAngles = newArmRotation;
         }
-        if (Input.GetKeyDown("right") && !faceRight)
+        if (Input.GetKeyDown("d") && !faceRight)
         {
             faceRight = true;
             Vector3 scaleBackwards = new Vector3(-transform.localScale.x, 

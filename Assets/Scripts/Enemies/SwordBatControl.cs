@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class SwordBatControl : MonoBehaviour
 {
+    private ParticleSystem particles;
     private Rigidbody2D rb;
     private SpriteRenderer animRenderer;
     private BoxCollider2D normalCollider;
@@ -22,6 +23,7 @@ public class SwordBatControl : MonoBehaviour
     private bool isRightPos;
     private bool isGrounded;
     private bool isDamaging;
+    private bool isDying;
 
     public Sprite BatJumpAnim;
     public Sprite BatLeftFoot;
@@ -34,6 +36,8 @@ public class SwordBatControl : MonoBehaviour
 
     void Start()
     {
+        isDying = false;
+        particles = gameObject.GetComponent<ParticleSystem>();
         rb = gameObject.GetComponent<Rigidbody2D>();
         animRenderer = gameObject.GetComponent<SpriteRenderer>();
         normalCollider = gameObject.GetComponents<BoxCollider2D>()[0];
@@ -51,30 +55,33 @@ public class SwordBatControl : MonoBehaviour
 
     void Update()
     {
-        GetDistances();
-
-        if (shouldMove)
+        if (!isDying)
         {
-            StartCoroutine(Move());
-            StartCoroutine(WalkAnimation());
-        }
+            GetDistances();
 
-        if (shouldJump && isGrounded)
-        {
-            StartCoroutine(Jump());
-        }
+            if (shouldMove)
+            {
+                StartCoroutine(Move());
+                StartCoroutine(WalkAnimation());
+            }
 
-        if (shouldAttack)
-        {
-            StartCoroutine(Attack());
-        }
-        else
-        {
-            normalCollider.enabled = true;
-            strikeCollider.enabled = false;
-        }
+            if (shouldJump && isGrounded)
+            {
+                StartCoroutine(Jump());
+            }
 
-        StartCoroutine(DeathCheck());
+            if (shouldAttack)
+            {
+                StartCoroutine(Attack());
+            }
+            else
+            {
+                normalCollider.enabled = true;
+                strikeCollider.enabled = false;
+            }
+
+            StartCoroutine(DeathCheck());
+        }
     }
 
     void OnCollisionEnter2D(Collision2D col)
@@ -86,7 +93,7 @@ public class SwordBatControl : MonoBehaviour
 
     void OnTriggerEnter2D (Collider2D col)
     {
-        if (col.gameObject.tag == "Bullet" && !isDamaging)
+        if (col.gameObject.tag == "Bullet" && !isDamaging && !isDying)
         { 
             StartCoroutine(Damage(col.gameObject.GetComponent<BulletInfo>().damage));
             Destroy(col.gameObject);
@@ -112,7 +119,7 @@ public class SwordBatControl : MonoBehaviour
 
         const float moveFollowDistance = 10f;
         const float jumpFollowDistance = 20f;
-        const float attackFollowDistance = 2.25f;
+        const float attackFollowDistance = 1f;
 
         if (width <= moveFollowDistance && hypotenuse > attackFollowDistance) shouldMove = true;
         else shouldMove = false;
@@ -126,7 +133,7 @@ public class SwordBatControl : MonoBehaviour
 
     IEnumerator Move()
     {
-        float moveSpeed = 0.025f;
+        float moveSpeed = 0.05f;
         if (isRightPos)
         {
             transform.localScale = new Vector3(1,1,1);
@@ -188,12 +195,13 @@ public class SwordBatControl : MonoBehaviour
     {
         isDamaging = true;
         health -= amount;
+        particles.Play();
         Color tempDamageColor = animRenderer.color;
             tempDamageColor.a = 0.75f;
             tempDamageColor.b = 0f;
             tempDamageColor.g = 0f;
             animRenderer.color = tempDamageColor;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.25f);
         Color normalColor = animRenderer.color;
             normalColor.a = 1f;
             normalColor.b = 255f;
@@ -206,6 +214,19 @@ public class SwordBatControl : MonoBehaviour
     {
         if (health <= 0)
         {
+            isDying = true;
+            Destroy(normalCollider);
+            Destroy(strikeCollider);
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            Color deadColor = new Color(255, 255, 255 , 0);
+            deadColor.a = 1.1f;
+            for (int i = 0; i < 11; i++)
+            {
+                deadColor.a -= 0.1f;
+                animRenderer.color = deadColor;
+                yield return new WaitForSeconds(0.1f);
+
+            }
             yield return new WaitForSeconds(1f);
             Destroy(gameObject);
         }

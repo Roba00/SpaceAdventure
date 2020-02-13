@@ -1,56 +1,73 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BatControl : MonoBehaviour
 {
-    public GameObject player;
-
+    private ParticleSystem particles;
+    private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
-    public Sprite defaultSprite;
-    public Sprite noWingsSprite;
-    public Sprite areaSprite;
-    public Sprite lineSprite;
-    public Sprite popSprite;
+    public GameObject player;
+    public Sprite spriteUp;
+    public Sprite spriteMiddle;
+    public Sprite spriteDown;
 
-    private Transform tf;
-    private bool isLeftSide;
-    private float minX;
-    private float maxX;
-    private float minY;
-    private float maxY;
-    
-    private bool canDamage;
+    private bool isAttackMode;
     private bool isDamaging;
-    private bool isAttacking;
+    private bool isDying;
     private float health;
+    private bool isRightPos;
+    private bool isAttacking;
+    private int plyrDir;
+    float plyrDistX, plyrDistY, plyrDist, plyrAngle;
     
+    // Start is called before the first frame update
     void Start()
     {
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
-
-        tf = gameObject.GetComponent<Transform>();
-        isLeftSide = false;      
-        minX = 18f;
-        maxX = 38f;
-        minY = 0f;
-        maxY = 7f;
-
-        canDamage = true;
+        particles = gameObject.GetComponent<ParticleSystem>();
+        rb = gameObject.GetComponent<Rigidbody2D>();
+        spriteRenderer.sprite = spriteUp;
+        StartCoroutine(anim());
+        isAttackMode = false;
+        StartCoroutine(Attack());
         isDamaging = false;
-        isAttacking = false;
-        health = 10f;
+        isDying = false;
+        health = 4;
     }
 
+    // Update is called once per frame
     void Update()
     {
-        StartCoroutine(AttackChooser());
-        StartCoroutine(DeathCheck());
+        if (!isDying)
+        {
+            GetDistances();
+            FlipPosition();
+            StartCoroutine(DeathCheck());
+            
+            if (plyrDist < 10f && !isAttackMode) {isAttackMode = true; StartCoroutine(Attack());}
+            if (plyrDist > 10f && isAttackMode /*&& !isAttacking*/) {isAttackMode = false; StopCoroutine(Attack());}
+        }
+    }
+
+    IEnumerator anim()
+    {
+        while (true)
+        {
+            spriteRenderer.sprite = spriteUp;
+            yield return new WaitForSeconds(0.4f);
+            spriteRenderer.sprite = spriteMiddle;
+            yield return new WaitForSeconds(0.15f);
+            spriteRenderer.sprite = spriteDown;
+            yield return new WaitForSeconds(0.15f);
+            spriteRenderer.sprite = spriteMiddle;
+            yield return new WaitForSeconds(0.25f);
+        }
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.gameObject.tag == "Bullet" && !isDamaging)
+        if (col.gameObject.tag == "Bullet" && !isDamaging && !isDying)
         { 
             StartCoroutine(Damage(col.gameObject.GetComponent<BulletInfo>().damage));
             Destroy(col.gameObject);
@@ -59,9 +76,14 @@ public class BatControl : MonoBehaviour
 
     void FlipPosition()
     {
-        Vector3 flipVector = 
-            new Vector3(-tf.localScale.x, tf.localScale.y, tf.localScale.z);
-        tf.localScale = flipVector;
+        if (isRightPos)
+        {
+            transform.localScale = new Vector3(5,5,5);
+        }
+        else if (!isRightPos)
+        {
+            transform.localScale = new Vector3(-5,5,5);
+        }
     }
 
     void GetDistances()
@@ -73,62 +95,68 @@ public class BatControl : MonoBehaviour
         float playerX = player.transform.position.x;
         float playerY = player.transform.position.y;
 
-        float width = Mathf.Abs(enemyX - playerX);
-        float height = Mathf.Abs(enemyY - playerY);
-        float angle = Mathf.Atan2(height, width) * Mathf.Rad2Deg;
-        float hypotenuse = height/Mathf.Sin((angle*Mathf.PI)/180);
+        plyrDistX = Mathf.Abs(enemyX - playerX);
+        plyrDistY = Mathf.Abs(enemyY - playerY);
+        plyrAngle = Mathf.Atan2(plyrDistY, plyrDistX) * Mathf.Rad2Deg;
+        plyrDist = plyrDistY/Mathf.Sin((plyrAngle*Mathf.PI)/180);
+        if (playerX < enemyX) plyrDir = -1;
+        else plyrDir = 1;
+
+        if (enemyX > playerX) isRightPos = true;
+        if (enemyX < playerX) isRightPos = false;
     }
 
-    IEnumerator AttackChooser()
+    IEnumerator Attack()
     {
-        yield return new WaitForEndOfFrame();
-    }
-
-    IEnumerator InstantTransmission(int numberOfTimes)
-    {
-        yield return new WaitForEndOfFrame();
-    }
-
-    IEnumerator BreathFire(int numberOfFires)
-    {
-        yield return new WaitForEndOfFrame();
-    }
-
-    IEnumerator SwoopAttack()
-    {
-        yield return new WaitForEndOfFrame();
-    }
-
-    IEnumerator StartThunderbolt()
-    {
-        yield return new WaitForEndOfFrame();
+        while (isAttackMode)
+        {
+            Vector3 diveDown = new Vector3(plyrDir*2, -4f, 0);
+            Vector3 riseUp = new Vector3(plyrDir*2, 4f, 0);
+            isAttacking = true;
+            rb.velocity = diveDown;
+            yield return new WaitForSeconds(0.6f);
+            rb.velocity = riseUp;
+            yield return new WaitForSeconds(0.6f);
+            rb.velocity = Vector3.zero;
+            isAttacking = false;
+        }
     }
 
     IEnumerator Damage(float amount)
     {
-        if (canDamage)
-        {
-            isDamaging = true;
-            health -= amount;
-            Color tempDamageColor = spriteRenderer.color;
-                tempDamageColor.a = 0.75f;
-                tempDamageColor.b = 0f;
-                tempDamageColor.g = 0f;
-                spriteRenderer.color = tempDamageColor;
-            yield return new WaitForSeconds(1f);
-            Color normalColor = spriteRenderer.color;
-                normalColor.a = 1f;
-                normalColor.b = 255f;
-                normalColor.g = 255f;
-                spriteRenderer.color = normalColor;
-            isDamaging = false;
-        }
+        isDamaging = true;
+        health -= amount;
+        particles.Play();
+        Color tempDamageColor = spriteRenderer.color;
+            tempDamageColor.a = 0.75f;
+            tempDamageColor.r = 0f;
+            tempDamageColor.b = 0f;
+            spriteRenderer.color = tempDamageColor;
+        yield return new WaitForSeconds(0.25f);
+        Color normalColor = spriteRenderer.color;
+            normalColor.a = 1f;
+            normalColor.r = 255f;
+            normalColor.b = 255f;
+            spriteRenderer.color = normalColor;
+        isDamaging = false;
     }
 
     IEnumerator DeathCheck()
     {
         if (health <= 0)
         {
+            isDying = true;
+            Destroy(gameObject.GetComponent<PolygonCollider2D>());
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            Color deadColor = new Color(255, 255, 255 , 0);
+            deadColor.a = 1.1f;
+            for (int i = 0; i < 11; i++)
+            {
+                deadColor.a -= 0.1f;
+                spriteRenderer.color = deadColor;
+                yield return new WaitForSeconds(0.1f);
+
+            }
             yield return new WaitForSeconds(1f);
             Destroy(gameObject);
         }
