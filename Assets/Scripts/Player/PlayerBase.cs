@@ -97,7 +97,7 @@ public class PlayerBase : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D col)
     {
-        if (col.gameObject.tag == "NormalEnemy" && !isInvincible)
+        if (col.gameObject.tag == "NormalEnemy" && !isInvincible && lifeCount>0)
         {
             StartCoroutine(Invincibility());
             Damage(1);
