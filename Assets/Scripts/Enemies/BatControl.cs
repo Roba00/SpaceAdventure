@@ -17,7 +17,6 @@ public class BatControl : MonoBehaviour
     private bool isDying;
     private float health;
     private bool isRightPos;
-    private bool isAttacking;
     private int plyrDir;
     float plyrDistX, plyrDistY, plyrDist, plyrAngle;
     
@@ -112,13 +111,11 @@ public class BatControl : MonoBehaviour
         {
             Vector3 diveDown = new Vector3(plyrDir*2, -4f, 0);
             Vector3 riseUp = new Vector3(plyrDir*2, 4f, 0);
-            isAttacking = true;
             rb.velocity = diveDown;
             yield return new WaitForSeconds(0.6f);
             rb.velocity = riseUp;
             yield return new WaitForSeconds(0.6f);
             rb.velocity = Vector3.zero;
-            isAttacking = false;
         }
     }
 

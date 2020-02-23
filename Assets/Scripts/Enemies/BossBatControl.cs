@@ -14,15 +14,9 @@ public class BossBatControl : MonoBehaviour
     public Sprite popSprite;
 
     private Transform tf;
-    private bool isLeftSide;
-    private float minX;
-    private float maxX;
-    private float minY;
-    private float maxY;
     
     private bool canDamage;
     private bool isDamaging;
-    private bool isAttacking;
     private float health;
     
     void Start()
@@ -30,15 +24,9 @@ public class BossBatControl : MonoBehaviour
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
 
         tf = gameObject.GetComponent<Transform>();
-        isLeftSide = false;      
-        minX = 18f;
-        maxX = 38f;
-        minY = 0f;
-        maxY = 7f;
 
         canDamage = true;
         isDamaging = false;
-        isAttacking = false;
         health = 10f;
     }
 

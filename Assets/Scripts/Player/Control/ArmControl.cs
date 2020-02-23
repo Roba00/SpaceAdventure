@@ -8,14 +8,12 @@ public class ArmControl : MonoBehaviour
     private Quaternion shootAngle;
     private float angleMinConstraint;
     private float angleMaxConstraint;
-    private float armRotateSpeed;
     private float bulletSpeed;
     private float shootWaitTime;
     private bool isShootWaiting;
     
     void Start()
     {
-        armRotateSpeed = 3;
         bulletSpeed = 300f;
         shootWaitTime = 0.6f;
         isShootWaiting = false;
@@ -49,7 +47,12 @@ public class ArmControl : MonoBehaviour
     void ShootingControl()
     {
         shootAngle = new Quaternion(0,0, transform.rotation.z, transform.rotation.w);
-
+        if (gameObject.GetComponentInParent<PlayerWalkControl>().tellShooterNotCrouching)
+        {
+            StopAllCoroutines();
+            isShootWaiting = false;
+            gameObject.GetComponentInParent<PlayerWalkControl>().tellShooterNotCrouching = false;
+        }
         if (Input.GetKey(KeyCode.Mouse0) && !isShootWaiting)
         {
             StartCoroutine(Shoot());

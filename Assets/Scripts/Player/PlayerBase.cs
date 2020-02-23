@@ -26,7 +26,8 @@ public class PlayerBase : MonoBehaviour
     private int lifeCount;
     public Sprite deathFace;
 
-    public bool faceRight;
+    private bool faceRight;
+    private bool isDying;
 
     void Start()
     {
@@ -45,37 +46,40 @@ public class PlayerBase : MonoBehaviour
 
     void Update()
     {
-        FacingControl();
+        if (!isDying)
+        {
+            FacingControl();
 
-        if (!playerWalkOption && playerFlyOption)
-        {
-            PlayerFlyControl.enabled = true;
-            PlayerWalkControl.enabled = false;
-            FlyAnim.enabled = true;
-            WalkAnim.enabled = false;
-        }
-        else if (playerWalkOption && !playerFlyOption)
-        {
-            PlayerFlyControl.enabled = false;
-            PlayerWalkControl.enabled = true;
-            FlyAnim.enabled = false;
-            WalkAnim.enabled = true;
-        }
-        else if (!playerWalkOption && !playerFlyOption)
-        {
-            PlayerFlyControl.enabled = false;
-            PlayerWalkControl.enabled = false;
-            FlyAnim.enabled = false;
-            WalkAnim.enabled = false;
-        }
-        else
-        {
-            Debug.Log("Error with player walk/fly options!");
-        }
+            if (!playerWalkOption && playerFlyOption)
+            {
+                PlayerFlyControl.enabled = true;
+                PlayerWalkControl.enabled = false;
+                FlyAnim.enabled = true;
+                WalkAnim.enabled = false;
+            }
+            else if (playerWalkOption && !playerFlyOption)
+            {
+                PlayerFlyControl.enabled = false;
+                PlayerWalkControl.enabled = true;
+                FlyAnim.enabled = false;
+                WalkAnim.enabled = true;
+            }
+            else if (!playerWalkOption && !playerFlyOption)
+            {
+                PlayerFlyControl.enabled = false;
+                PlayerWalkControl.enabled = false;
+                FlyAnim.enabled = false;
+                WalkAnim.enabled = false;
+            }
+            else
+            {
+                Debug.Log("Error with player walk/fly options!");
+            }
 
-        if (lifeCount <= 0 && !(!playerFlyOption && !playerWalkOption))
-        {
-            StartCoroutine(Death());
+            if (lifeCount <= 0 && !(!playerFlyOption && !playerWalkOption))
+            {
+                StartCoroutine(Death());
+            }
         }
     }
 
@@ -94,6 +98,15 @@ public class PlayerBase : MonoBehaviour
     void OnCollisionEnter2D(Collision2D col)
     {
         if (col.gameObject.tag == "NormalEnemy" && !isInvincible)
+        {
+            StartCoroutine(Invincibility());
+            Damage(1);
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.gameObject.tag == "NormalEnemy" && !isInvincible && lifeCount>0)
         {
             StartCoroutine(Invincibility());
             Damage(1);
@@ -147,6 +160,9 @@ public class PlayerBase : MonoBehaviour
 
     public IEnumerator Death()
     {
+        isDying = true;
+        PlayerWalkControl.enabled = false;
+        PlayerFlyControl.enabled = false;
         playerWalkOption = false;
         playerFlyOption = false;
         gameObject.transform.Find("Head").

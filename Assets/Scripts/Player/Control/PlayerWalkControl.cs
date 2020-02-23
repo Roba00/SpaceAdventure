@@ -4,30 +4,32 @@ using UnityEngine;
 
 public class PlayerWalkControl : MonoBehaviour
 {
-    public Rigidbody2D playerRb;
+    private Rigidbody2D playerRb;
+    private BoxCollider2D boxCollider;
+    private CircleCollider2D circleCollider;
     private float speed;
-    private float slowSpeed;
     private float jumpVelocity;
     private float fallVelocity;
-    private bool isBraking;
     private bool isGrounded;
-    private bool isJumping;
-    private bool isNormalSpeed;
+    private bool isCrouching;
+    public bool tellShooterNotCrouching;
+    public GameObject Arm, Propeller, Head, Bottom;
 
     void Start()
     {
-        speed = 3f;
-        slowSpeed = 0.5f;
-        jumpVelocity = 1f; //350f
-        isBraking = false;
+        playerRb = gameObject.GetComponent<Rigidbody2D>();
+        boxCollider = gameObject.GetComponent<BoxCollider2D>();
+        circleCollider = gameObject.GetComponent<CircleCollider2D>();
+        speed = 200f;
+        jumpVelocity = 1f;
         isGrounded = false;
-        isJumping = false;
-        isNormalSpeed = true;
+        tellShooterNotCrouching = false;
     }
 
     void Update()
     {
         HorizantalMovementControl();
+        Crouch();
     }
 
     void FixedUpdate()
@@ -41,92 +43,72 @@ public class PlayerWalkControl : MonoBehaviour
         {
             isGrounded = true;
         }
-
-        Debug.Log(col.gameObject.name);
     }
 
     void JumpControl()
     {
-        /*if (Input.GetKeyDown("w") && isGrounded)
-        {
-            isGrounded = false;
-            isJumping = true;
-            playerRb.AddForce(Vector2.zero);
-            playerRb.velocity = new Vector2 (playerRb.velocity.x, jumpPower);
-        }
-
-        if (Input.GetKey("w") && isJumping)
-        {
-            if (jumpTimeCounter > 0)
-            {
-                playerRb.velocity = new Vector2 (playerRb.velocity.x, jumpPower/2);
-                jumpTimeCounter -= Time.deltaTime;
-            }
-        }
-
-        if (Input.GetKeyUp("w"))
-        {
-            jumpTimeCounter = 0;
-            isJumping = false;
-        }*/
-
         if (Input.GetKeyDown("w") && isGrounded)
         {   
-            jumpVelocity = 10f;
+            if (!isCrouching) jumpVelocity = 10f;
+            else jumpVelocity = 12f;
             isGrounded = false;
             playerRb.velocity = new Vector2 (playerRb.velocity.x, jumpVelocity);
         }
 
-        if (playerRb.velocity.y < 0 && !isGrounded && !Input.GetKey("w"))
-        {
-            //fallVelocity -= Physics2D.gravity.y/10000;
-            //playerRb.velocity -= Vector2.up * fallVelocity;
-        }
-
         if (playerRb.velocity.y > 0 && !isGrounded && !Input.GetKey("w"))
         {
-            //fallVelocity -= Physics2D.gravity.y/10000;
             playerRb.velocity -= Vector2.up * jumpVelocity/10;
         }
     }
 
     void HorizantalMovementControl()
     {
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey("a"))
         {
-            isNormalSpeed = !isNormalSpeed;
+            playerRb.velocity = new Vector2(-speed * Time.deltaTime, playerRb.velocity.y);
         }
-        
-        if (isNormalSpeed)
+        else if (Input.GetKey("d"))
         {
-            speed = 3f;
+            playerRb.velocity = new Vector2(speed * Time.deltaTime, playerRb.velocity.y);
         }
         else
         {
-            speed = 6f;
-        }
-
-        if (Input.GetKey("a") && !isBraking)
-        {
-            transform.Translate(-speed * Time.deltaTime, 0, 0);
-        }
-        else if (Input.GetKey("a") && isBraking)
-        {
-            transform.Translate(-slowSpeed * Time.deltaTime, 0, 0);
-        }
-
-        if (Input.GetKey("d") && !isBraking)
-        {
-            transform.Translate(speed * Time.deltaTime, 0, 0);
-        }
-        else if (Input.GetKey("d") && isBraking)
-        {
-            transform.Translate(slowSpeed * Time.deltaTime, 0, 0);
+            playerRb.velocity = new Vector2(0, playerRb.velocity.y);
         }
     }
 
     public bool isInAir()
     {
         return !isGrounded;
+    }
+
+    void Crouch()
+    {
+        if (Input.GetKeyDown("s"))
+        {
+            if (!isCrouching)
+            {
+                isCrouching = true;
+                speed = 300f;
+                Arm.SetActive(false);
+                Propeller.SetActive(false);
+                Head.SetActive(false);
+                Bottom.SetActive(false);
+                boxCollider.enabled = false;
+                circleCollider.enabled = false;
+            }
+            else
+            {
+                isCrouching = false;
+                speed = 200f;
+                tellShooterNotCrouching = true;
+                Arm.SetActive(true);
+                Propeller.SetActive(true);
+                Head.SetActive(true);
+                Bottom.SetActive(true);
+                boxCollider.enabled = true;
+                circleCollider.enabled = true;
+            }
+        }
     }
 }

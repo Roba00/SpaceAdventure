@@ -6,12 +6,10 @@ public class CameraControl : MonoBehaviour
 {
     public GameObject player;
     private float followSpeed;
-    private float deadZoneY;
 
     void Start()
     {
-        followSpeed = 0.2f;
-        deadZoneY = 1f;
+        followSpeed = 0.1f;
     }
 
     void Update()
