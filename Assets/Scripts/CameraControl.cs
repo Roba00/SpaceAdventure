@@ -10,6 +10,8 @@ public class CameraControl : MonoBehaviour
     void Start()
     {
         followSpeed = 0.1f;
+        //Camera.main.aspect = 3.0f/2.0f;
+        //Screen.SetResolution(100, 100, false);
     }
 
     void Update()
