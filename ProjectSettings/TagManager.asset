@@ -6,10 +6,8 @@ TagManager:
   tags:
   - NormalEnemy
   - Ground
-  - GreenPotion
-  - RedPotion
-  - BluePotion
   - Bullet
+  - InstaKill
   layers:
   - Default
   - TransparentFX
@@ -24,7 +22,7 @@ TagManager:
   - Player
   - Enemies
   - Interactables
-  - 
+  - Bullets
   - 
   - 
   - 

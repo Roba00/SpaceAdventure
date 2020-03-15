@@ -23,6 +23,8 @@ public class SwordBatControl : MonoBehaviour
     private bool isRightPos;
     private bool isGrounded;
     private bool isDamaging;
+    private bool isAttacking;
+    private bool isMoving;
     private bool isDying;
 
     public Sprite BatJumpAnim;
@@ -59,10 +61,16 @@ public class SwordBatControl : MonoBehaviour
         {
             GetDistances();
 
-            if (shouldMove)
+            if (shouldMove && !isMoving)
             {
                 StartCoroutine(Move());
                 StartCoroutine(WalkAnimation());
+            }
+            else
+            {
+                isMoving = false;
+                StopCoroutine(Move());
+                StopCoroutine(WalkAnimation());
             }
 
             if (shouldJump && isGrounded)
@@ -70,14 +78,14 @@ public class SwordBatControl : MonoBehaviour
                 StartCoroutine(Jump());
             }
 
-            if (shouldAttack)
+            if (shouldAttack && !isAttacking)
             {
                 StartCoroutine(Attack());
             }
             else
             {
-                normalCollider.enabled = true;
-                strikeCollider.enabled = false;
+                isAttacking = false;
+                StopCoroutine(Attack());
             }
 
             StartCoroutine(DeathCheck());
@@ -119,7 +127,7 @@ public class SwordBatControl : MonoBehaviour
 
         const float moveFollowDistance = 10f;
         const float jumpFollowDistance = 20f;
-        const float attackFollowDistance = 1f;
+        const float attackFollowDistance = 4f;
 
         if (width <= moveFollowDistance && hypotenuse > attackFollowDistance) shouldMove = true;
         else shouldMove = false;
@@ -133,62 +141,67 @@ public class SwordBatControl : MonoBehaviour
 
     IEnumerator Move()
     {
-        float moveSpeed = 0.05f;
-        if (isRightPos)
-        {
-            transform.localScale = new Vector3(1,1,1);
-            Vector3 movement = new Vector3(-moveSpeed, 0, 0);
-            transform.Translate(movement);
-            yield return new WaitForSeconds(0.5f);
-        }
-        else if (!isRightPos)
-        {
-            transform.localScale = new Vector3(-1,1,1);
-            Vector3 movement = new Vector3(moveSpeed, 0, 0);
-            transform.Translate(movement);
-            yield return new WaitForSeconds(0.5f);
-        }
+        isMoving = true;
+        //while (true)
+        //{
+            float moveSpeed = 3f;
+            if (isRightPos)
+            {
+                transform.localScale = new Vector3(1,1,1);
+                Vector3 movement = new Vector3(-moveSpeed, rb.velocity.y, 0);
+                rb.velocity = movement;
+                yield return new WaitForSeconds(0.5f);
+            }
+            else if (!isRightPos)
+            {
+                transform.localScale = new Vector3(-1,1,1);
+                Vector3 movement = new Vector3(moveSpeed, rb.velocity.y, 0);
+                rb.velocity = movement;
+                yield return new WaitForSeconds(0.5f);
+            }
+        //}
     }
 
     IEnumerator WalkAnimation()
     {
         float waitTime = 0.15f;
-        while (true)
-        {
-            animRenderer.sprite = BatLeftFoot;
-            yield return new WaitForSeconds(waitTime);
-            animRenderer.sprite = BatRightFoot;
-            yield return new WaitForSeconds(waitTime);
-        }
+        animRenderer.sprite = BatLeftFoot;
+        yield return new WaitForSeconds(waitTime);
+        animRenderer.sprite = BatRightFoot;
+        yield return new WaitForSeconds(waitTime);
     }
 
     IEnumerator Jump()
     {
         float jumpPower = 5f;
-        float waitTime = Random.Range(3f, 6f);
-        Vector3 jumpForce = new Vector3(0, jumpPower);
+        float waitTime = Random.Range(10f, 6f);
+        Vector3 jumpVelocity = new Vector3(rb.velocity.x, jumpPower);
         animRenderer.sprite = BatJumpAnim;
         if (shouldJump && isGrounded)
         {
             isGrounded = false;
-            rb.AddForce(Vector2.zero);
-            rb.AddForce(jumpForce, ForceMode2D.Impulse);
+            //rb.AddForce(Vector2.zero);
+            //rb.AddForce(jumpForce, ForceMode2D.Impulse);
+            rb.velocity = jumpVelocity;
         }
         yield return new WaitForSeconds(waitTime);
     }
 
     IEnumerator Attack()
     {
-        normalCollider.enabled = false;
-        strikeCollider.enabled = true;
-        while (true)
+        isAttacking = true;
+        if (!isDying)
         {
+            normalCollider.enabled = false;
+            strikeCollider.enabled = true;}
             animRenderer.sprite = BatStrike;
             yield return new WaitForSeconds(1.5f);
+        if (!isDying)
+        {
+            normalCollider.enabled = true;
+            strikeCollider.enabled = false;}
             animRenderer.sprite = BatStance;
             yield return new WaitForSeconds(1.5f);
-        }
-
     }
 
     IEnumerator Damage(float amount)
@@ -215,6 +228,8 @@ public class SwordBatControl : MonoBehaviour
         if (health <= 0)
         {
             isDying = true;
+            StopCoroutine(Attack());
+            StopCoroutine(Move());
             Destroy(normalCollider);
             Destroy(strikeCollider);
             rb.constraints = RigidbodyConstraints2D.FreezeAll;

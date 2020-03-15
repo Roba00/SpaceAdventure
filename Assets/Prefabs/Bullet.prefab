@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7187251587917502344}
   - component: {fileID: 4433141245829794580}
   - component: {fileID: 8517381841231431773}
-  m_Layer: 12
+  m_Layer: 13
   m_Name: Bullet
   m_TagString: Bullet
   m_Icon: {fileID: 0}
@@ -152,3 +152,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
+  isMissle: 0

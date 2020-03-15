@@ -5,6 +5,7 @@ using UnityEngine;
 public class ArmControl : MonoBehaviour
 {
     public GameObject bullet;
+    public GameObject missle;
     private Quaternion shootAngle;
     private float angleMinConstraint;
     private float angleMaxConstraint;
@@ -15,31 +16,20 @@ public class ArmControl : MonoBehaviour
     void Start()
     {
         bulletSpeed = 300f;
-        shootWaitTime = 0.6f;
+        shootWaitTime = 0.5f;
         isShootWaiting = false;
     }
 
     void Update()
     { 
-        //AngleConstraints();
         MovementControl();
         ShootingControl();
     }
 
     void MovementControl()
     {
-        if (Input.GetKey("d"))
-        {
-            //transform.Rotate(new Vector3(0,0,armRotateSpeed));
-        }
-        if (Input.GetKey("s"))
-        {
-            //transform.Rotate(new Vector3(0,0,-armRotateSpeed));
-        }
-
-        //Vector3 mousePos = Input.mousePosition;
         Vector2 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition)-transform.position;
-        float angleZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + 90;
+        float angleZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + 86; //Should be 90, but changed to fit cursor position
         Quaternion rotation = Quaternion.AngleAxis(angleZ, Vector3.forward);
         transform.rotation = rotation;
     }
@@ -55,51 +45,17 @@ public class ArmControl : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.Mouse0) && !isShootWaiting)
         {
-            StartCoroutine(Shoot());
+            StartCoroutine(ShootBullet());
+        }
+        if (Input.GetKey(KeyCode.Mouse1) && !isShootWaiting)
+        {
+            StartCoroutine(ShootMissle());
         }
     }
 
-    void AngleConstraints()
+    IEnumerator ShootBullet()
     {
-        if (gameObject.GetComponentInParent<PlayerBase>().IsRight())
-        {
-            angleMinConstraint = 5f;
-            angleMaxConstraint = 165f;
-            if (transform.eulerAngles.z < angleMinConstraint)
-            {
-                Vector3 newAngle = new Vector3(transform.rotation.x, 
-                transform.rotation.y, angleMinConstraint);
-                transform.eulerAngles = newAngle;
-            }
-            else if (transform.eulerAngles.z > angleMaxConstraint)
-            {
-                Vector3 newAngle = new Vector3(transform.rotation.x, 
-                transform.rotation.y, angleMaxConstraint);
-                transform.eulerAngles = newAngle;
-            }
-        }
-        if (!gameObject.GetComponentInParent<PlayerBase>().IsRight())
-        {
-            angleMinConstraint = 355f;
-            angleMaxConstraint = 195f;
-            if (transform.eulerAngles.z > angleMinConstraint)
-            {
-                Vector3 newAngle = new Vector3(transform.rotation.x, 
-                transform.rotation.y, angleMinConstraint);
-                transform.eulerAngles = newAngle;
-            }
-            else if (transform.eulerAngles.z < angleMaxConstraint)
-            {
-                Vector3 newAngle = new Vector3(transform.rotation.x, 
-                transform.rotation.y, angleMaxConstraint);
-                transform.eulerAngles = newAngle;
-            }
-        }
-    }
-
-    IEnumerator Shoot()
-    {
-        StartCoroutine(ShootWaiting());
+        StartCoroutine(BulletWaiting());
         GameObject localBullet = Instantiate(bullet, transform.position, shootAngle);
         localBullet.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector3(0, -bulletSpeed));
         localBullet.tag = "Bullet";
@@ -107,10 +63,27 @@ public class ArmControl : MonoBehaviour
         Destroy(localBullet);
     }
 
-    IEnumerator ShootWaiting()
+    IEnumerator ShootMissle()
+    {
+        StartCoroutine(MissleWaiting());
+        GameObject localMissle = Instantiate(missle, transform.position, shootAngle);
+        localMissle.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector3(0, -bulletSpeed*1.25f));
+        localMissle.tag = "Bullet";
+        yield return new WaitForSeconds(1f);
+        Destroy(localMissle);
+    }
+
+    IEnumerator BulletWaiting()
     {
         isShootWaiting = true;
         yield return new WaitForSeconds(shootWaitTime);
+        isShootWaiting = false;
+    }
+
+    IEnumerator MissleWaiting()
+    {
+        isShootWaiting = true;
+        yield return new WaitForSeconds(shootWaitTime+0.75f);
         isShootWaiting = false;
     }
 }

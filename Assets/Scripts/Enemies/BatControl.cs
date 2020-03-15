@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class BatControl : MonoBehaviour
 {
+    public GameObject projectile;
     private ParticleSystem particles;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
@@ -29,14 +30,12 @@ public class BatControl : MonoBehaviour
         spriteRenderer.sprite = spriteUp;
         StartCoroutine(anim());
         isAttackMode = false;
-        StartCoroutine(Attack());
         isDamaging = false;
         isDying = false;
-        health = 4;
+        health = 5;
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (!isDying)
         {
@@ -44,8 +43,8 @@ public class BatControl : MonoBehaviour
             FlipPosition();
             StartCoroutine(DeathCheck());
             
-            if (plyrDist < 10f && !isAttackMode) {isAttackMode = true; StartCoroutine(Attack());}
-            if (plyrDist > 10f && isAttackMode /*&& !isAttacking*/) {isAttackMode = false; StopCoroutine(Attack());}
+            if (plyrDist < 10f && !isAttackMode) {isAttackMode = true; StartCoroutine(Attack()); StartCoroutine(DropAhh());}
+            if (plyrDist > 10f && isAttackMode /*&& !isAttacking*/) {isAttackMode = false; StopCoroutine(Attack()); StopCoroutine(DropAhh());}
         }
     }
 
@@ -109,13 +108,23 @@ public class BatControl : MonoBehaviour
     {
         while (isAttackMode)
         {
-            Vector3 diveDown = new Vector3(plyrDir*2, -4f, 0);
-            Vector3 riseUp = new Vector3(plyrDir*2, 4f, 0);
+            Vector3 diveDown = new Vector3(plyrDir*4, -4f, 0);
+            Vector3 riseUp = new Vector3(plyrDir*4, 4f, 0);
             rb.velocity = diveDown;
             yield return new WaitForSeconds(0.6f);
             rb.velocity = riseUp;
             yield return new WaitForSeconds(0.6f);
             rb.velocity = Vector3.zero;
+        }
+    }
+    IEnumerator DropAhh()
+    {
+        while (isAttackMode)
+        {
+            //Launch Lavaball
+            GameObject projectile1 = Instantiate(projectile, transform.position, new Quaternion(0,0,0,0));
+            StartCoroutine(DeleteFireBallEleventually(projectile1));
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
@@ -157,5 +166,11 @@ public class BatControl : MonoBehaviour
             yield return new WaitForSeconds(1f);
             Destroy(gameObject);
         }
+    }
+
+    IEnumerator DeleteFireBallEleventually(GameObject obj)
+    {
+        yield return new WaitForSeconds(3f);
+        Destroy(obj);
     }
 }
