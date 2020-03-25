@@ -15,7 +15,7 @@ public class ArmControl : MonoBehaviour
     
     void Start()
     {
-        bulletSpeed = 300f;
+        bulletSpeed = 350f;
         shootWaitTime = 0.5f;
         isShootWaiting = false;
     }
@@ -29,7 +29,7 @@ public class ArmControl : MonoBehaviour
     void MovementControl()
     {
         Vector2 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition)-transform.position;
-        float angleZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + 86; //Should be 90, but changed to fit cursor position
+        float angleZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + 90;
         Quaternion rotation = Quaternion.AngleAxis(angleZ, Vector3.forward);
         transform.rotation = rotation;
     }

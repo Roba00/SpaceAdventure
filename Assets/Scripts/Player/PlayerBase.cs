@@ -48,7 +48,10 @@ public class PlayerBase : MonoBehaviour
     {
         if (!isDying)
         {
-            FacingControl();
+            if (!PlayerWalkControl.isChargeAttack())
+            {
+                FacingControl();
+            }
 
             if (!playerWalkOption && playerFlyOption)
             {
@@ -168,7 +171,7 @@ public class PlayerBase : MonoBehaviour
         gameObject.transform.Find("Head").
         GetComponent<SpriteRenderer>().sprite = deathFace;
         Vector3 deathRotation = new Vector3(0,0,-90);
-        transform.Rotate(deathRotation);
+        transform.eulerAngles = deathRotation;
         yield return new WaitForSeconds(3f);
         SceneManager.LoadScene(1);
     }
@@ -205,5 +208,10 @@ public class PlayerBase : MonoBehaviour
     public bool IsRight()
     {
         return faceRight;
+    }
+
+    public bool isDeath()
+    {
+        return isDying;
     }
 }

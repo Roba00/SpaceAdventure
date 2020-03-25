@@ -119,7 +119,7 @@ public class BatControl : MonoBehaviour
     }
     IEnumerator DropAhh()
     {
-        while (isAttackMode)
+        while (isAttackMode && !isDying)
         {
             //Launch Lavaball
             GameObject projectile1 = Instantiate(projectile, transform.position, new Quaternion(0,0,0,0));

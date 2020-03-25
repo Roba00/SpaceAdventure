@@ -9,10 +9,22 @@ public class FlyAnim : MonoBehaviour
     private SpriteRenderer fireRender;
     private float animWaitTime;
 
-    void Start()
+    /*void Start()
     {
         animWaitTime = 0.15f;
         fireRender = gameObject.GetComponent<SpriteRenderer>();
+        StartCoroutine(Anim());
+    }*/
+
+    void OnEnable()
+    {
+        animWaitTime = 0.15f;
+        fireRender = gameObject.GetComponent<SpriteRenderer>();
+        StartCoroutine(Anim());
+    }
+
+    void OnDistable()
+    {
         StartCoroutine(Anim());
     }
 

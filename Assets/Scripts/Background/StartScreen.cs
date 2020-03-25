@@ -12,7 +12,7 @@ public class StartScreen : MonoBehaviour
 
     IEnumerator StartGame()
     {
-        yield return new WaitForSeconds(3.5f);
+        yield return new WaitForSeconds(12f);
         SceneManager.LoadSceneAsync(2);
     }
 }

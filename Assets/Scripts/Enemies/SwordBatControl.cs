@@ -144,7 +144,7 @@ public class SwordBatControl : MonoBehaviour
         isMoving = true;
         //while (true)
         //{
-            float moveSpeed = 3f;
+            float moveSpeed = 5f;
             if (isRightPos)
             {
                 transform.localScale = new Vector3(1,1,1);

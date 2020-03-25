@@ -15,7 +15,7 @@ PlayerSettings:
   companyName: DefaultCompany
   productName: SpaceAdventure
   defaultCursor: {fileID: 2800000, guid: 962bb8b4e88ae1949b9335a05c322fae, type: 3}
-  cursorHotspot: {x: 0, y: 0}
+  cursorHotspot: {x: 40, y: 40}
   m_SplashScreenBackgroundColor: {r: 0.254717, g: 0.254717, b: 0.254717, a: 1}
   m_ShowUnitySplashScreen: 1
   m_ShowUnitySplashLogo: 1
