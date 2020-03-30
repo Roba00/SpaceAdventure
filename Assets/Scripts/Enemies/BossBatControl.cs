@@ -44,7 +44,6 @@ public class BossBatControl : MonoBehaviour
         maxHealth = 15f;
         health = maxHealth;
         isAttacking = false;
-        Debug.Log("Is attacking: " + isAttacking);
         StartCoroutine(AnimFlapping());
         slider.gameObject.SetActive(false);
     }
@@ -113,7 +112,6 @@ public class BossBatControl : MonoBehaviour
     int repeats;
     IEnumerator AttackChooser()
     {
-        Debug.Log("BOSS ATTACK");
         isAttacking = true;
         int choice = Random.Range(1, 5);
         if (lastChoice == 0) choice = 1;

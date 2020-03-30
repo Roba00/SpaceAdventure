@@ -70,6 +70,11 @@ public class BatControl : MonoBehaviour
             StartCoroutine(Damage(col.gameObject.GetComponent<BulletInfo>().damage));
             Destroy(col.gameObject);
         }
+
+        if (col.gameObject.tag == "Player" && col.gameObject.GetComponentInParent<PlayerWalkControl>().isChargeAttack())
+        {
+            StartCoroutine(Damage(2));
+        }
     }
 
     void FlipPosition()

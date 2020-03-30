@@ -29,6 +29,8 @@ public class PlayerBase : MonoBehaviour
     private bool faceRight;
     private bool isDying;
 
+    private bool isKnockingBack;
+
     void Start()
     {
         PlayerFlyControl = gameObject.GetComponent<PlayerFlyControl>();
@@ -40,7 +42,7 @@ public class PlayerBase : MonoBehaviour
         playerWalkOption = true;
         playerFlyOption = false;
         isInvincible = false;
-        lifeCount = 3;
+        lifeCount = 5;
         faceRight = true;
     }
 
@@ -100,18 +102,20 @@ public class PlayerBase : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D col)
     {
-        if (col.gameObject.tag == "NormalEnemy" && !isInvincible && lifeCount>0)
+        if (col.gameObject.tag == "NormalEnemy" && !isInvincible && lifeCount>0  && !PlayerWalkControl.isChargeAttack())
         {
             StartCoroutine(Invincibility());
+            Knockback(col.gameObject);
             Damage(1);
         }
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.gameObject.tag == "NormalEnemy" && !isInvincible && lifeCount>0)
+        if (col.gameObject.tag == "NormalEnemy" && !isInvincible && lifeCount>0  && !PlayerWalkControl.isChargeAttack())
         {
             StartCoroutine(Invincibility());
+            Knockback(col.gameObject);
             Damage(1);
         }
     }
@@ -179,7 +183,7 @@ public class PlayerBase : MonoBehaviour
     void FacingControl()
     {
         float offsetX = 0f; //Was 1.7f
-        if (Input.GetKeyDown("a") && faceRight)
+        if (Input.GetKey("a") && faceRight)
         {
             faceRight = false;
             Vector3 scaleBackwards = new Vector3(-transform.localScale.x, 
@@ -191,7 +195,7 @@ public class PlayerBase : MonoBehaviour
             //Vector3 newArmRotation = new Vector3(0,0,10/*transform.Find("Arm").transform.rotation.z*/);
             //transform.Find("Arm").transform.localEulerAngles = newArmRotation;
         }
-        if (Input.GetKeyDown("d") && !faceRight)
+        if (Input.GetKey("d") && !faceRight)
         {
             faceRight = true;
             Vector3 scaleBackwards = new Vector3(-transform.localScale.x, 
@@ -205,6 +209,24 @@ public class PlayerBase : MonoBehaviour
         }
     }
 
+    void Knockback(GameObject enemy)
+    {
+        Debug.Log("Yes, you reaached this code.");
+        isKnockingBack = true;
+        float knockForce = 10f;
+        if (enemy.transform.position.x > gameObject.transform.position.x)
+        {
+            knockForce = -knockForce;
+        }
+        gameObject.GetComponent<Rigidbody2D>().velocity = new Vector3(knockForce, gameObject.GetComponent<Rigidbody2D>().velocity.y, 0);
+        StartCoroutine(WaitForKnockbackEnd());
+    }
+
+    IEnumerator WaitForKnockbackEnd()
+    {
+        yield return new WaitForSeconds(0.15f);
+        isKnockingBack = false;
+    }
     public bool IsRight()
     {
         return faceRight;
@@ -213,5 +235,10 @@ public class PlayerBase : MonoBehaviour
     public bool isDeath()
     {
         return isDying;
+    }
+
+    public bool isKnockingBacks()
+    {
+        return isKnockingBack;
     }
 }

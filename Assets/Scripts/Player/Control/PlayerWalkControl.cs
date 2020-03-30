@@ -14,8 +14,9 @@ public class PlayerWalkControl : MonoBehaviour
     private bool isJumping;
     private bool isCrouching;
     private bool isCharging;
+    private bool hasChargedOnce;
     public bool tellShooterNotCrouching;
-    public GameObject Arm, Propeller, Head, Bottom;
+    public GameObject Arm, Propeller, Head, Bottom, Charge;
 
     void Start()
     {
@@ -45,7 +46,15 @@ public class PlayerWalkControl : MonoBehaviour
         if (col.gameObject.tag == "Ground")
         {
             isGrounded = true;
+            hasChargedOnce = false;
             isCharging = false;
+            if (!isCrouching)
+            {
+                Charge.GetComponent<SpriteRenderer>().enabled = false;
+                Charge.GetComponent<BoxCollider2D>().enabled = false;
+                gameObject.GetComponent<BoxCollider2D>().enabled = true;
+                gameObject.GetComponent<CircleCollider2D>().enabled = true;
+            }
             if (!gameObject.GetComponent<PlayerBase>().isDeath())
                 transform.eulerAngles = new Vector3(0,0,0);
         }
@@ -53,7 +62,7 @@ public class PlayerWalkControl : MonoBehaviour
 
     void JumpControl()
     {
-        if (Input.GetKeyDown("w") && isGrounded)
+        if (Input.GetKeyDown("w") && isGrounded && !gameObject.GetComponent<PlayerBase>().isKnockingBacks())
         {   
             isJumping = true;
             if (!isCrouching) jumpVelocity = 9f;
@@ -66,20 +75,26 @@ public class PlayerWalkControl : MonoBehaviour
             isJumping = false;
         }
 
-        if (Input.GetKey("w") &&  !isGrounded && !isCrouching && !isCharging && !isJumping)
+        // Charge Attack
+        if (Input.GetKey("w") &&  !isGrounded && !isCrouching && !isCharging && !isJumping && !hasChargedOnce)
         {
             isCharging = true;
             playerRb.velocity = new Vector3(0, 0, 0);
+            Charge.GetComponent<SpriteRenderer>().enabled = true;
+            Charge.GetComponent<BoxCollider2D>().enabled = true;
+            gameObject.GetComponent<BoxCollider2D>().enabled = false;
+            gameObject.GetComponent<CircleCollider2D>().enabled = false;
             if (transform.localScale.x == .75f) 
             {
                 transform.eulerAngles = new Vector3(0,0,-90);
-                playerRb.velocity = new Vector3(10f, -7.5f, 0);
+                playerRb.velocity = new Vector3(10f, 2.5f, 0);
             }
             if (transform.localScale.x == -.75f)
             {
                 transform.eulerAngles = new Vector3(0,0,90);
-                playerRb.velocity = new Vector3(-10f, -7.5f, 0);
+                playerRb.velocity = new Vector3(-10f, 2.5f, 0);
             }
+            StartCoroutine(StopCharge());
         }
 
         if (playerRb.velocity.y > 0 && !isGrounded && !Input.GetKey("w"))
@@ -92,24 +107,24 @@ public class PlayerWalkControl : MonoBehaviour
     {
         if (!isCharging)
         {
-            if (Input.GetKey("a"))
+            if (Input.GetKey("a") && !gameObject.GetComponent<PlayerBase>().isKnockingBacks())
             {
                 playerRb.velocity = new Vector2(-speed * Time.deltaTime, playerRb.velocity.y);
             }
-            else if (Input.GetKey("d"))
+            else if (Input.GetKey("d") && !gameObject.GetComponent<PlayerBase>().isKnockingBacks())
             {
                 playerRb.velocity = new Vector2(speed * Time.deltaTime, playerRb.velocity.y);
             }
             else
             {
-                playerRb.velocity = new Vector2(playerRb.velocity.x/1.1f, playerRb.velocity.y);
+                playerRb.velocity = new Vector2(playerRb.velocity.x*0.915f, playerRb.velocity.y);
             }
         }
     }
 
     void Crouch()
     {
-        if (Input.GetKeyDown("s"))
+        if (Input.GetKeyDown("s") && !isCharging && !gameObject.GetComponent<PlayerBase>().isKnockingBacks())
         {
             if (!isCrouching)
             {
@@ -134,6 +149,24 @@ public class PlayerWalkControl : MonoBehaviour
                 boxCollider.enabled = true;
                 circleCollider.enabled = true;
             }
+        }
+    }
+    
+    IEnumerator StopCharge()
+    {
+        yield return new WaitForSeconds(0.5f);
+        if (isCharging)
+        {
+            hasChargedOnce = true;
+            isCharging = false;
+            Vector3 stopVelocity = new Vector3(0, playerRb.velocity.y, 0);
+            playerRb.velocity = stopVelocity;
+            Charge.GetComponent<SpriteRenderer>().enabled = false;
+            Charge.GetComponent<BoxCollider2D>().enabled = false;
+            gameObject.GetComponent<BoxCollider2D>().enabled = true;
+            gameObject.GetComponent<CircleCollider2D>().enabled = true;
+            if (!gameObject.GetComponent<PlayerBase>().isDeath())
+                transform.eulerAngles = new Vector3(0,0,0);
         }
     }
 
