@@ -23,7 +23,8 @@ public class ArmControl : MonoBehaviour
     void Update()
     { 
         MovementControl();
-        ShootingControl();
+        if (!gameObject.GetComponentInParent<PlayerWalkControl>().IsCrouching())
+            ShootingControl();
     }
 
     void MovementControl()
@@ -37,12 +38,6 @@ public class ArmControl : MonoBehaviour
     void ShootingControl()
     {
         shootAngle = new Quaternion(0,0, transform.rotation.z, transform.rotation.w);
-        if (gameObject.GetComponentInParent<PlayerWalkControl>().tellShooterNotCrouching)
-        {
-            StopAllCoroutines();
-            isShootWaiting = false;
-            gameObject.GetComponentInParent<PlayerWalkControl>().tellShooterNotCrouching = false;
-        }
         if (Input.GetKey(KeyCode.Mouse0) && !isShootWaiting)
         {
             StartCoroutine(ShootBullet());

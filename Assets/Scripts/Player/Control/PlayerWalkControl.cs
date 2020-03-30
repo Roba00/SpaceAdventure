@@ -15,7 +15,6 @@ public class PlayerWalkControl : MonoBehaviour
     private bool isCrouching;
     private bool isCharging;
     private bool hasChargedOnce;
-    public bool tellShooterNotCrouching;
     public GameObject Arm, Propeller, Head, Bottom, Charge;
 
     void Start()
@@ -26,7 +25,7 @@ public class PlayerWalkControl : MonoBehaviour
         speed = 200f;
         jumpVelocity = 1f;
         isGrounded = false;
-        tellShooterNotCrouching = false;
+        isCrouching = false;
     }
 
     void Update()
@@ -141,7 +140,6 @@ public class PlayerWalkControl : MonoBehaviour
             {
                 isCrouching = false;
                 speed = 200f;
-                tellShooterNotCrouching = true;
                 Arm.GetComponent<SpriteRenderer>().enabled = true;
                 Propeller.GetComponent<SpriteRenderer>().enabled = true;
                 Head.GetComponent<SpriteRenderer>().enabled = true;
@@ -178,5 +176,10 @@ public class PlayerWalkControl : MonoBehaviour
     public bool isChargeAttack()
     {
         return isCharging;
+    }
+
+    public bool IsCrouching()
+    {
+        return isCrouching;
     }
 }
