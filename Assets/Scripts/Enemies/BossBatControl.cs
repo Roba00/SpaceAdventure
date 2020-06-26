@@ -52,7 +52,7 @@ public class BossBatControl : MonoBehaviour
     {
         GetDistances();
         slider.value = ((float)(health)/maxHealth);
-        if (plyrDist < 10f && !playerAtBossArea)
+        if (plyrDist < 5f && !playerAtBossArea)
         {
             
             playerAtBossArea = true;

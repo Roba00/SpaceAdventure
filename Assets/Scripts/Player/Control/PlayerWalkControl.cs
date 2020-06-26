@@ -75,7 +75,7 @@ public class PlayerWalkControl : MonoBehaviour
         }
 
         // Charge Attack
-        if (Input.GetKey("w") &&  !isGrounded && !isCrouching && !isCharging && !isJumping && !hasChargedOnce)
+        /*if (Input.GetKey("w") &&  !isGrounded && !isCrouching && !isCharging && !isJumping && !hasChargedOnce)
         {
             isCharging = true;
             playerRb.velocity = new Vector3(0, 0, 0);
@@ -94,7 +94,7 @@ public class PlayerWalkControl : MonoBehaviour
                 playerRb.velocity = new Vector3(-10f, 2.5f, 0);
             }
             StartCoroutine(StopCharge());
-        }
+        }*/
 
         if (playerRb.velocity.y > 0 && !isGrounded && !Input.GetKey("w"))
         {
